@@ -1,0 +1,21 @@
+{
+    "name": "waframe/waframe",
+    "description": "WA Framework - Framework personalizado",
+    "type": "library",
+    "license": "MIT",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "WA Team",
+            "email": "dev@wa.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "WAFrame\\": "src/"
+        }
+    }
+}
