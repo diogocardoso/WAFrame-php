@@ -1,0 +1,30 @@
+
+namespace App\Drone\Structs;
+
+use App\Drone\System\DRO_struct;
+/**
+ * Description of @CLASS_NAME
+ *
+ * @author NAME
+ * @copyright (c) @DATE
+ * @version 1.0
+ **/
+class @OBJ_FIRST_UPPERStruct extends DRO_struct
+{
+    public string $id;
+    public string $status;    
+    public ?string $created_at;
+    public ?string $updated_at;
+    public ?string $disabled_at;
+
+    protected $table = 'TABLE NAME';
+
+    public function __construct(array $data = [])
+    {
+        $this->id = $data['id'] ?? '';
+        $this->status = $data['status'] ?? 'A';        
+        $this->created_at = $data['created_at'] ?? null;
+        $this->updated_at = $data['updated_at'] ?? null;
+        $this->disabled_at = $data['disabled_at'] ?? null;
+    }
+}

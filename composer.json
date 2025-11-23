@@ -15,7 +15,8 @@
     },
     "autoload": {
         "psr-4": {
-            "WAFrame\\": "src/"
+            "WAFrame\\": "src/",
+            "WAFrame\\Factory\\": "factory/"
         }
     }
 }

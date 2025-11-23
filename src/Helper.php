@@ -80,21 +80,24 @@ class Helper {
         $tmp = []; foreach ($Array as $key=>$val){ $tmp[$key] = $this->uppercase($val); } return $tmp;
     }
 
-    public function array_remove_keys(array $Array){
-        $tmp = [];
-        $keys = array_keys($Array);
-
-        foreach ($keys as $key) {
-            $item = $Array[$key];
-            if(is_array($item)){
-                $arr = array_keys($item);
-                $tmp[$arr[0]] = $item[$arr[0]];
-            }else{
-                $tmp[] = $item;
-            }
+    public function array_remove_keys($data, $level = 1) {
+        if (!is_array($data) || $level < 1) {
+            return $data;
         }
         
-        return $tmp;
+        if ($level === 1) {
+            // Para nível 1, remove chaves numéricas e merge os arrays internos
+            $result = [];
+            foreach ($data as $item) {
+                if (is_array($item)) {
+                    $result = array_merge($result, $item);
+                }
+            }
+            return $result;
+        }
+        
+        // Para outros níveis, usa recursão
+        return $this->remove_keys_recursive($data, $level, 1);
     }
 
     public function array_search(array $array, $key, $value) {
@@ -1208,7 +1211,30 @@ function get_faixa_horaria_hora($time, $hora, $limit=FALSE){
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // Variante RFC 4122
 
         // Converte os bytes em uma string UUID
-        return vsprintf('x%x%x%x%x-%x%x-%x%x-%x%x-%x%x%x%x%x%x', str_split(bin2hex($data), 4));
+        return vsprintf('%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x', array_map('ord', str_split($data)));
+    }
+
+    public function uuidv7(){
+        // Gera um UUID v7 com timestamp para melhor ordenação
+        $timestamp = microtime(true) * 1000; // milissegundos desde epoch
+        $timestamp_ms = intval($timestamp);
+        
+        // Converte timestamp para 48 bits (6 bytes)
+        $timestamp_bytes = pack('J', $timestamp_ms << 16); // shift left para deixar espaço para sub-millisecond
+        $timestamp_bytes = substr($timestamp_bytes, 2, 6); // pega apenas os 6 bytes necessários
+        
+        // Gera 10 bytes aleatórios para o resto
+        $random_bytes = random_bytes(10);
+        
+        // Monta o UUID v7
+        $data = $timestamp_bytes . $random_bytes;
+        
+        // Define os bits de versão e variante
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x70); // Versão 7
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // Variante RFC 4122
+        
+        // Converte os bytes em uma string UUID
+        return vsprintf('%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x', array_map('ord', str_split($data)));
     }
 
     public function url($str, $separator = 'dash', $lowercase = FALSE){
@@ -1350,6 +1376,43 @@ function get_faixa_horaria_hora($time, $hora, $limit=FALSE){
                 $result[$keyMapping[$key]] = $value;
             } else {
                 // Se não existe no mapeamento, mantém a chave original
+                $result[$key] = $value;
+            }
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Função auxiliar recursiva para remover chaves de níveis específicos
+     * 
+     * @param array $data Array de dados
+     * @param int $targetLevel Nível alvo para remoção
+     * @param int $currentLevel Nível atual
+     * @return array Array processado
+     */
+    private function remove_keys_recursive($data, $targetLevel, $currentLevel) {
+        if (!is_array($data)) {
+            return $data;
+        }
+        
+        if ($currentLevel === $targetLevel) {
+            // Se chegou no nível alvo, remove as chaves e merge
+            $result = [];
+            foreach ($data as $item) {
+                if (is_array($item)) {
+                    $result = array_merge($result, $item);
+                }
+            }
+            return $result;
+        }
+        
+        // Continua recursivamente para o próximo nível
+        $result = [];
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $result[$key] = $this->remove_keys_recursive($value, $targetLevel, $currentLevel + 1);
+            } else {
                 $result[$key] = $value;
             }
         }

@@ -1,0 +1,33 @@
+/**
+ * Description of @CLASS_NAME
+ *
+ * @author NAME
+ * @copyright (c) @DATE
+ * @version 1.0
+ **/
+load('@PLUGIN/model');
+class @CLASS_NAME extends @PLU_FIRST_UPPER_model{
+    public function __construct(){        
+        parent::__construct(@PLU_UPPERDatabase::table_name);
+
+        $this->primary_key = 'id';
+    }
+
+    public function dataGrid_total(){
+        return parent::__dataGrid_total($this->primary_key, "status != 'X'");
+    }
+    
+    public function dataGrid(){       
+        $fields = "*";
+        $order = "created_at DESC";
+        $join = null;
+
+        return parent::__dataGrid($fields, $order, $join);
+    }
+
+    /*Methods Privates*/
+    
+    protected function dataGrid_where(){
+        return null;
+    }
+}

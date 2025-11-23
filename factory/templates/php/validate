@@ -1,0 +1,86 @@
+namespace App\Drone\Validates;
+
+use App\Drone\System\DRO_validate;
+use App\Drone\Repositories\@OBJ_FIRST_UPPERRepository;
+/**
+ * Description of @CLASS_NAME
+ *
+ * @author NAME
+ * @copyright (c) @DATE
+ * @version 1.0
+ **/
+class @OBJ_FIRST_UPPERValidate extends DRO_validate
+{
+    public function create($values){
+        $this->set_values($values);
+        $this->set_model($this->Model());
+
+        $this->set_item('name',
+            $this->valida()
+                ->is_valid('Nome é obrigatório')
+                ->unique([
+                    $this->where('name', (isset($values['name'])) ? $values['name'] : null)
+                ], 'Nome já existe')
+                ->make()
+        );
+
+        $this->set_item('color', 
+            $this->valida()
+                ->is_valid('Cor é obrigatória')
+                ->string_length(7, 'A cor deve ter 7 caracteres ex: #000000')
+                ->make()
+        );
+
+        return $this->show();
+    }
+
+    public function modify($values){
+        $this->set_values($values);
+        $this->set_model($this->Model());
+        
+        $this->set_item('id',
+            $this->valida()
+                ->is_valid('ID é obrigatório')
+                ->exists([
+                    $this->where('id', (isset($values['id'])) ? $values['id'] : null)
+                ], '@OBJECT não encontrado')
+                ->make()
+        );
+
+        $this->set_item('name',
+            $this->valida()
+                ->if(
+                    $this->valida()
+                        ->is_valid(null)
+                        ->unique([
+                            $this->where('name', (isset($values['name'])) ? $values['name'] : null, '=', 'AND'),
+                            $this->where('id', (isset($values['id'])) ? $values['id'] : null, '!=')
+                        ], 'Nome já existe')
+                        ->make()
+                    )
+                ->make()
+        );
+
+        return $this->show();
+    }
+
+    public function delete($id){
+        $this->set_values(['id' => $id]);
+        $this->set_model($this->Model());
+
+        $this->set_item('id',
+            $this->valida()
+                ->is_valid('ID é obrigatório')
+                ->exists([
+                    $this->where('id', $id)
+                ], '@OBJ_FIRST_UPPER não encontrado')
+                ->make()
+        );
+
+        return $this->show();
+    }
+
+    private function Model(){
+        return new @OBJ_FIRST_UPPERRepository();
+    }
+}

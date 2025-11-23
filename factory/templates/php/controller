@@ -1,0 +1,108 @@
+namespace App\Drone\Controllers;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+use App\Drone\Entities\@OBJ_FIRST_UPPER;
+use App\Drone\Services\@OBJ_FIRST_UPPERService;
+
+/**
+ * Description of @CLASS_NAME
+ *
+ * @author NAME
+ * @copyright (c) @DATE
+ * @version 1.0
+ **/
+class @CLASS_NAME extends Controller
+{
+    public function create(Request $request) : JsonResponse
+    {        
+        $Entity = new @OBJ_FIRST_UPPER();
+        
+        if(!$Entity->create($request->all())){
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao criar @OBJECT',
+                'error' => $Entity->get_error()
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => '@OBJECT criado com sucesso',
+            'data' => $Entity->to_array()
+        ]);
+    }
+
+    public function dataGrid(Request $request) : JsonResponse
+    {
+        $@OBJECTService = new @OBJ_FIRST_UPPERService();
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total' => $@OBJECTService->dataGridTotal(),
+                'rows' => $@OBJECTService->dataGrid()
+            ]
+        ]);
+    }
+
+    public function modify(string $id) : JsonResponse
+    {        
+        $Entity = new @OBJ_FIRST_UPPER();
+        
+        $Entity->set_item('id', $id);
+        
+        if(!$Entity->modify(request()->all())){
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao atualizar @OBJECT',
+                'error' => $Entity->get_error()
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => '@OBJECT atualizado com sucesso',
+            'data' => $Entity->to_array()
+        ]);
+    }
+
+    public function delete(string $id) : JsonResponse
+    {
+        $Entity = new @OBJ_FIRST_UPPER();
+        
+        if(!$Entity->delete($id)){
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao deletar @OBJECT',
+                'error' => $Entity->get_error()
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => '@OBJECT deletado com sucesso'
+        ]);
+    }
+
+    public function find(string $id) : JsonResponse
+    {
+        $Entity = new @OBJ_FIRST_UPPER();
+        
+        if(!$Entity->find($id)){
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao buscar @OBJECT',
+                'error' => $Entity->get_error()
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => '@OBJECT encontrado com sucesso',
+            'data' => $Entity->to_array()
+        ]);
+    }
+}

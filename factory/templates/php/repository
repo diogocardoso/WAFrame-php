@@ -1,0 +1,51 @@
+namespace App\Drone\Repositories;
+
+use App\Drone\System\DRO_model;
+use App\Drone\Structs\@OBJ_FIRST_UPPERStruct;
+/**
+ * Description of @CLASS_NAME
+ *
+ * @author NAME
+ * @copyright (c) @DATE
+ * @version 1.0
+ **/
+class @OBJ_FIRST_UPPERRepository extends DRO_model
+{
+    protected $fillable;
+
+    public function __construct()
+    {
+        $this->table = $this->Struct()->getTable();
+        $this->fillable = $this->Struct()->toArrayKey();
+
+        parent::__construct();
+
+        $this->resultArray(true);
+    }
+
+    public function dataGrid()
+    {
+        return $this->_dataGrid('*', 'id DESC');
+    }
+
+    public function dataGridTotal()
+    {
+        return $this->_dataGridTotal('id');
+    }
+
+    public function modify($values, $where)
+    {
+        return $this->updateRecord($values, $where);
+    }
+
+    public function remove($where)
+    {
+        return $this->deleteRecord($where);
+    }
+
+    /*Objects*/
+
+    private function Struct(){
+        return new @OBJ_FIRST_UPPERStruct();
+    }
+}

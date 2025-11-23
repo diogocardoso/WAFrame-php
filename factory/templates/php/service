@@ -1,0 +1,27 @@
+namespace App\Drone\Services;
+
+use App\Drone\Repositories\@OBJ_FIRST_UPPERRepository;
+/**
+ * Description of @CLASS_NAME
+ *
+ * @author NAME
+ * @copyright (c) @DATE
+ * @version 1.0
+ **/
+class @OBJ_FIRST_UPPERService
+{    
+    public function dataGrid(){
+        return $this->@OBJ_FIRST_UPPERRepository()->dataGrid();
+    }
+
+    public function dataGridTotal(){
+        return $this->@OBJ_FIRST_UPPERRepository()->dataGridTotal();
+    }
+
+    /*Objects*/
+
+    private function @OBJ_FIRST_UPPERRepository()
+    {
+        return new @OBJ_FIRST_UPPERRepository();
+    }
+}

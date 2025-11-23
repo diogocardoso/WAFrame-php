@@ -1,0 +1,132 @@
+ 
+namespace App\Drone\Entities;
+
+use App\Drone\System\DRO_entity;
+use App\Drone\Repositories\@OBJ_FIRST_UPPERRepository;
+use App\Drone\Validates\@OBJ_FIRST_UPPERValidate;
+use App\Drone\Structs\@OBJ_FIRST_UPPERStruct;
+
+use WAFrame\WA;
+/**
+ * Description of @CLASS_NAME
+ *
+ * @author NAME
+ * @copyright (c) @DATE
+ * @version 1.0
+ **/
+class @OBJ_FIRST_UPPER extends DRO_entity
+{
+    public function __construct()
+    {
+        parent::__construct('@OBJ_FIRST_UPPER');
+        $this->primary_Key('id');
+        $this->fields($this->Struct()->toArrayKey());
+    }
+
+    public function create($values)
+    {       
+        $validate = $this->Validate();
+        
+        if(!$validate->create($values)){
+            $this->set_error($validate->get_error());
+            return false;
+        }
+
+        $this->load_fields($values);
+
+        $this->format();
+
+        $this->set_field('id', WA::helper()->uuid());
+        $this->set_field('created_at', date('Y-m-d H:i:s'));
+
+        $repository = $this->Repository();
+
+        if(!$repository->create($this->to_array())){
+            $this->set_error($repository->getError());
+            return false;
+        }
+
+        return true;
+    }
+
+    public function modify($values)
+    {
+        $values['id'] = $this->get_field('id');
+        
+        $validate = $this->Validate();
+        
+        if(!$validate->modify($values)){
+            $this->set_error($validate->get_error());
+            return false;
+        }
+        
+        $this->load_fields($values);
+        
+        $this->format();
+
+        $new_values = $this->to_array_modify();
+
+        if(!$new_values){
+            $this->set_error('Nenhum campo foi modificado.');
+            return false;
+        }
+
+        $new_values['updated_at'] = date('Y-m-d H:i:s');
+
+        $repository = $this->Repository();
+
+        if(!$repository->modify($new_values, ["id" => $this->get_field('id')])){
+            $this->set_error($repository->getError());
+            return false;
+        }
+
+        $this->populate();
+
+        return true;
+    }
+
+    public function delete($id)
+    {
+        $validate = $this->Validate();
+
+        if(!$validate->delete($id)){
+            $this->set_error($validate->get_error());
+            return false;
+        }
+
+        $repository = $this->Repository();
+
+        if(!$repository->remove(["id" => $id])){
+            $this->set_error($repository->getError());
+            return false;
+        }
+
+        return true;
+    }
+
+    public function find($id)
+    {
+
+    }
+
+    private function format(){
+        $name = $this->get_field('name');
+
+        if($name!==""){
+            $this->set_field('name', $this->Formatter($name)->uppercase()->show());
+        }
+    }
+
+    protected function Repository(){
+        return new @OBJ_FIRST_UPPERRepository();
+    }
+
+    protected function Validate(){
+        return new @OBJ_FIRST_UPPERValidate();
+    }
+
+    public function Struct(){
+        return new @OBJ_FIRST_UPPERStruct();
+    }
+
+}

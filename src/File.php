@@ -1,5 +1,7 @@
 <?php
 namespace WAFrame;
+
+
 /**
  * Description of WA_file
  *
@@ -36,10 +38,10 @@ class File
     * @access	public
     * @param	string	$directory Caminho
     * @param	int	$chmod     Default 0777 
-    * @param	boolean	$recursive Default FALSE
+    * @param	boolean	$recursive Default TRUE
     * @return	string
     **/
-   public function create_directory($directory, $chmod=0777, $recursive=FALSE)
+   public function create_directory($directory, $chmod=0777, $recursive=TRUE)
    {
        if( !file_exists($directory) )
        {
@@ -47,7 +49,7 @@ class File
        }
        else
        {
-           return FALSE;
+           return TRUE; // Diretório já existe, retorna TRUE
        }
    }
    /**

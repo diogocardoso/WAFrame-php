@@ -1,0 +1,12 @@
+/**
+ * Description of @CLASS_NAME
+ *
+ * @author NAME
+ * @copyright (c) @DATE
+ * @version 1.0
+ **/
+class @CLASS_NAME {
+    public function __construct(){
+
+    }
+}

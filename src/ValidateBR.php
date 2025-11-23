@@ -204,31 +204,55 @@ class ValidateBR
         return false;
     }
     /**
-     * Validates a brazilian (ptBR) phone number.
-     * Also allows the formats
-     * If $requiredAreaCode is true:
-     * (XX)-XXXX-XXXX,(XX) XXXX XXXX, (XX)-XXXX XXXX, (XX) XXXX-XXXX, 
-     * XX-XXXX-XXXX,XX XXXX XXXX,XX-XXXX XXXX,XX XXXX-XXXX,XX XXXXXXXX,(XX)XXXXXXXX 
-     * If $requiredAreaCode is false:  XXXX-XXXX,XXXX XXXX, XXXXXXXX
+     * Padrões aceitos:
+     * +55 (92) 98161-7625 -> 5592981617625 (13 dígitos)
+     * (92) 98161-7625 -> 92981617625 (11 dígitos) 
+     * 98161-7625 -> 981617625 (9 dígitos)
+     * 981617625 -> 981617625 (9 dígitos)
+     * 92981617625 -> 92981617625 (11 dígitos)
+     * 5592981617625 -> 5592981617625 (13 dígitos)
      *
-     * @param string $number          phone to validate
-     * @param bool   $requireAreaCode require the area code? (default: true)
+     * @param string $val          phone to validate     
      *
      * @return bool The valid or invalid phone number
      */
-    public function phone($number, $requireAreaCode = true)
+    public function cellphone($val)
     {
-        $number = addcslashes($number, "\n");
-        if (!$requireAreaCode) {
-            if (preg_match("/^(\d{4})[- ]?(\d{4})$/", $number)) {
-                return  true;
-            }
-        } else {
-            $exp = "/^(\()?[1-9]{2}(?(1)\))[- ]?(\d{4})[- ]?(\d{4})$/";
-            if (preg_match($exp, $number)) {
-                return true;
-            }
+        if (empty($val)) {
+            return false;
         }
+        
+        // Remove todos os caracteres não numéricos
+        $clean_phone = preg_replace('/[^0-9]/', '', $val);        
+        
+        $length = strlen($clean_phone);
+        
+        // Verifica se tem 9, 11 ou 13 dígitos
+        if (!in_array($length, [9, 11, 13])) {
+            return false;
+        }
+        
+        // Se tem 9 dígitos, deve começar com 9 (celular)
+        if ($length == 9) {
+            return substr($clean_phone, 0, 1) == '9';
+        }
+        
+        // Se tem 11 dígitos, deve ser formato (XX) 9XXXX-XXXX
+        if ($length == 11) {
+            // Verifica se o terceiro dígito é 9 (celular)
+            return substr($clean_phone, 2, 1) == '9';
+        }
+        
+        // Se tem 13 dígitos, deve ser formato +55 (XX) 9XXXX-XXXX
+        if ($length == 13) {
+            // Deve começar com 55 (código do Brasil)
+            if (substr($clean_phone, 0, 2) != '55') {
+                return false;
+            }
+            // O quinto dígito deve ser 9 (celular)
+            return substr($clean_phone, 4, 1) == '9';
+        }
+        
         return false;
     }
     /**
