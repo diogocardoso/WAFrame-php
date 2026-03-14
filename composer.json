@@ -11,8 +11,17 @@
         }
     ],
     "require": {
-        "php": "^8.2"
+        "php": "^8.2",
+        "diogocardoso/waframe-php": "dev-main"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/diogocardoso/WAFrame-php"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "WAFrame\\": "src/",
