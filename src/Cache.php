@@ -18,6 +18,7 @@ class Cache
         $this->set_diretorio($diretorio);
 
         $file_name = str_replace($this->get_formato(), "", $file_name);
+        $file_name = $this->sanitize_file_name($file_name);
 
         $this->set_file_name("{$file_name}{$this->get_formato()}");
     }
@@ -155,37 +156,69 @@ class Cache
 
     private function verify_directory(){
         try {
-            $array = explode("/", $this->diretorio);
-            $diretorio = "";
-            
-            foreach ($array as $dir){
-                if(empty($dir)) continue; // Pula diretórios vazios
-                
-                $diretorio.= "{$dir}/";
+            $directory = str_replace('\\', '/', $this->diretorio);
 
-                if(!file_exists($diretorio)){
-                    // Verifica se o diretório pai tem permissão de escrita
-                    $parent_dir = dirname($diretorio);
-                    if(!is_writable($parent_dir) && $parent_dir !== '.'){
-                        throw new \Exception("Erro: Sem permissão de escrita no diretório pai: {$parent_dir}");
+            $is_absolute = (substr($directory, 0, 1) === '/')
+                || (preg_match('/^[A-Za-z]:\//', $directory) === 1);
+
+            $directory = trim($directory, '/');
+            $parts = ($directory === '') ? [] : explode('/', $directory);
+
+            // Prefixo inicial correto para path absoluto (Linux ou Windows)
+            if ($is_absolute) {
+                if (!empty($parts) && preg_match('/^[A-Za-z]:$/', $parts[0]) === 1) {
+                    // Ex.: C:/...
+                    $current = array_shift($parts) . '/';
+                } else {
+                    // Ex.: /application/...
+                    $current = '/';
+                }
+            } else {
+                $current = '';
+            }
+
+            foreach ($parts as $part) {
+                if ($part === '' || $part === '.') {
+                    continue;
+                }
+
+                $current .= $part . '/';
+
+                if (file_exists($current)) {
+                    if (!is_dir($current)) {
+                        throw new \Exception("Erro: Caminho existe mas não é diretório: {$current}");
                     }
-                    
-                    $FILE = $this->WA_file();
-                    $result = $FILE->create_directory($diretorio);
-                    
-                    if(!$result){
-                        throw new \Exception("Erro: Falha ao criar o diretório: {$diretorio}");
+
+                    if (!is_writable($current)) {
+                        throw new \Exception("Erro: Diretório sem permissão de escrita: {$current}");
                     }
-                    
-                    // Verifica se o diretório foi realmente criado
-                    if(!file_exists($diretorio)){
-                        throw new \Exception("Erro: Diretório não foi criado com sucesso: {$diretorio}");
-                    }
-                    
-                    // Verifica se o diretório criado tem permissão de escrita
-                    if(!is_writable($diretorio)){
-                        throw new \Exception("Erro: Diretório criado não tem permissão de escrita: {$diretorio}");
-                    }
+
+                    continue;
+                }
+
+                // Verifica permissão no diretório pai
+                $parent_dir = dirname(rtrim($current, '/'));
+                if ($parent_dir === '') {
+                    $parent_dir = '.';
+                }
+
+                if (!is_writable($parent_dir) && $parent_dir !== '.') {
+                    throw new \Exception("Erro: Sem permissão de escrita no diretório pai: {$parent_dir}");
+                }
+
+                $FILE = $this->WA_file();
+                $result = $FILE->create_directory($current);
+
+                if (!$result) {
+                    throw new \Exception("Erro: Falha ao criar o diretório: {$current}");
+                }
+
+                if (!file_exists($current)) {
+                    throw new \Exception("Erro: Diretório não foi criado com sucesso: {$current}");
+                }
+
+                if (!is_writable($current)) {
+                    throw new \Exception("Erro: Diretório criado não tem permissão de escrita: {$current}");
                 }
             }
 
@@ -198,6 +231,20 @@ class Cache
             // Re-lança a exceção para ser capturada pelo método save()
             throw new \Exception("Erro na verificação/criação do diretório: " . $e->getMessage());
         }
+    }
+
+    private function sanitize_file_name($file_name){
+        $value = trim((string) $file_name);
+
+        if ($value === '') {
+            return 'cache';
+        }
+
+        // Evita separadores de caminho e caracteres inválidos para nome de arquivo.
+        $value = str_replace(['/', '\\', "\0"], '_', $value);
+        $value = preg_replace('/[^a-zA-Z0-9._@-]/', '_', $value);
+
+        return $value;
     }
 
     /*  Get & Set   */
