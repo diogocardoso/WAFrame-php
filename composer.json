@@ -3,29 +3,21 @@
     "description": "WA Framework - Framework personalizado",
     "type": "library",
     "license": "MIT",
-    "version": "1.0.0",
     "authors": [
-        {
-            "name": "WA Team",
-            "email": "dev@wa.com"
-        }
+      {
+        "name": "Diogo Cardoso",
+        "email": "diogo@webadvance.com.br"
+      }
     ],
     "require": {
-        "php": "^8.2",
-        "diogocardoso/waframe-php": "dev-main"
+      "php": "^8.2"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/diogocardoso/WAFrame-php"
-        }
-    ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "autoload": {
-        "psr-4": {
-            "WAFrame\\": "src/",
-            "WAFrame\\Factory\\": "factory/"
-        }
-    }
-}
+      "psr-4": {
+        "WAFrame\\": "src/",
+        "WAFrame\\Factory\\": "factory/"
+      }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+  }
