@@ -7,6 +7,8 @@ use WAFrame\File;
 use WAFrame\Helper;
 use WAFrame\Validate;
 use WAFrame\ValidateBR;
+use WAFrame\Image;
+use WAFrame\Upload;
 
 class WA
 {
@@ -38,5 +40,15 @@ class WA
     public static function validateBR()
     {
         return new ValidateBR();
+    }
+
+    public static function image($urlImage)
+    {
+        return new Image($urlImage);
+    }
+
+    public static function upload($encript_name = TRUE)
+    {
+        return new Upload($encript_name);
     }
 }
